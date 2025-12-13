@@ -63,6 +63,39 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
     coincidan. Además, incrementa ``moves`` y ``matches`` según corresponda.
     """
 
+    # Obtener las coordenadas de las cartas pendientes
+    card1_coords, card2_coords = GameState['pending']
+    
+    # Acceder a las cartas usando las coordenadas
+    card1 = GameState['board'][card1_coords[0]][card1_coords[1]]
+    card2 = GameState['board'][card2_coords[0]][card2_coords[1]]
+    
+    # Inicializar la variable para saber si hay pareja
+    pareja_encontrada = False
+    
+    # Comprobar si las cartas coinciden
+    if card1['symbol'] == card2['symbol']:
+        # Las cartas coinciden, se marcan como encontradas
+        card1['state'] = 'STATE_FOUND'
+        card2['state'] = 'STATE_FOUND'
+        
+        # Incrementar el contador de matches
+        GameState['matches'] += 1
+        pareja_encontrada = True
+    else:
+        # Las cartas no coinciden, se ocultan de nuevo
+        card1['state'] = 'STATE_HIDDEN'
+        card2['state'] = 'STATE_HIDDEN'
+    
+    # Incrementar el contador de movimientos
+    GameState['moves'] += 1
+    
+    # Limpiar la lista de pendientes
+    GameState['pending'] = []
+    
+    # Devolver la tupla: (resuelto, pareja_encontrada)
+    return True, pareja_encontrada
+
     raise NotImplementedError
 
 
