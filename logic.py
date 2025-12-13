@@ -6,6 +6,8 @@ necesario crear clases; basta con manipular listas, diccionarios y tuplas.
 from __future__ import annotations
 
 import random
+import string
+import pygame
 from typing import Dict, List, Tuple
 
 STATE_HIDDEN = "hidden"
@@ -25,7 +27,32 @@ def build_symbol_pool(rows: int, cols: int) -> List[str]:
     veces como parejas necesites. Después baraja el resultado.
     """
 
-    raise NotImplementedError
+    total_cartas = rows*cols
+
+    if rows > 8:
+        raise ValueError("El limite de filas es de 8.")
+    elif cols > 10:
+        raise ValueError("El limite de columnas es de 10.")
+    elif total_cartas > 60:
+        raise ValueError("El limite total de cartas es de 60")
+    
+    num_parejas_necesarias = total_cartas // 2
+
+    caracteres = string.ascii_letters + string.digits + "!@#$%^&*"
+    if num_parejas_necesarias > len(caracteres):
+       raise ValueError(f"Se necesitan {num_parejas_necesarias} símbolos únicos, pero solo hay {len(caracteres)} disponibles.")
+    
+    random_simbolos = ''.join([random.choice(caracteres) for n in range(num_parejas_necesarias)])
+
+    # Se duplican las cartas
+    lista_simbolos = []
+    for simbol in random_simbolos:
+        lista_simbolos.append(simbol)
+        lista_simbolos.append(simbol)
+
+    # Se barajan las cartas
+    random.shuffle(lista_simbolos)
+    return lista_simbolos
 
 
 def create_game(rows: int, cols: int) -> GameState:
@@ -40,9 +67,55 @@ def create_game(rows: int, cols: int) -> GameState:
     - ``total_pairs``: número total de parejas disponibles.
     - ``rows`` / ``cols``: dimensiones del tablero.
     """
+    
+                
+    try:
+        # Asegúrate de que el módulo mixer esté disponible/inicializado
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+            
+        # Carga y reproduce la música de fondo
+        pygame.mixer.music.load("misc/m1.mp3") 
+        pygame.mixer.music.play(loops=-1)
+        pygame.mixer.music.set_volume(0.3)
+        
+    except pygame.error as e:
+        print(f"Advertencia: No se pudo iniciar la música de fondo. Asegúrate de tener el archivo de musica. Error: {e}")
 
-    raise NotImplementedError
-
+    # Obtiene la lista de símbolos barajados (depende de tu parte Alex)
+    simbolos = build_symbol_pool(rows, cols)
+    
+    # Construir el tablero (lista de listas de cartas)
+    tablero = []
+    indice_simbolo = 0
+    
+    for fila in range(rows):
+        cartas_fila = []
+        for columna in range(cols):
+            carta = {
+                "symbol": simbolos[indice_simbolo],
+                "state": STATE_HIDDEN
+            }
+            cartas_fila.append(carta)
+            indice_simbolo += 1
+        tablero.append(cartas_fila)
+    
+    # Se calcula el numero total de parejas
+    casillas_totales = rows * cols      
+    parejas_totales = casillas_totales // 2
+    
+    #devuelve el estado inicial del juego.
+    estado_juego = {
+        "board": tablero,
+        "pending": [],
+        "moves": 0,
+        "matches": 0,
+        "total_pairs": parejas_totales,
+        "rows": rows,
+        "cols": cols
+    }
+    
+    return estado_juego
 
 def reveal_card(game: GameState, row: int, col: int) -> bool:
     """Intenta revelar la carta en (row, col). Devuelve True si se revela."""
@@ -79,11 +152,11 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
     """
 
     # Obtener las coordenadas de las cartas pendientes
-    card1_coords, card2_coords = GameState['pending']
+    card1_coords, card2_coords = game['pending']
     
     # Acceder a las cartas usando las coordenadas
-    card1 = GameState['board'][card1_coords[0]][card1_coords[1]]
-    card2 = GameState['board'][card2_coords[0]][card2_coords[1]]
+    card1 = game['board'][card1_coords[0]][card1_coords[1]]
+    card2 = game['board'][card2_coords[0]][card2_coords[1]]
     
     # Inicializar la variable para saber si hay pareja
     pareja_encontrada = False
@@ -95,7 +168,7 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
         card2['state'] = 'STATE_FOUND'
         
         # Incrementar el contador de matches
-        GameState['matches'] += 1
+        game['matches'] += 1
         pareja_encontrada = True
     else:
         # Las cartas no coinciden, se ocultan de nuevo
@@ -103,15 +176,13 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
         card2['state'] = 'STATE_HIDDEN'
     
     # Incrementar el contador de movimientos
-    GameState['moves'] += 1
+    game['moves'] += 1
     
     # Limpiar la lista de pendientes
-    GameState['pending'] = []
+    game['pending'] = []
     
     # Devolver la tupla: (resuelto, pareja_encontrada)
     return True, pareja_encontrada
-
-    raise NotImplementedError
 
 
 def has_won(game: GameState) -> bool:

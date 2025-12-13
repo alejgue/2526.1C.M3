@@ -35,6 +35,7 @@ class MemoryUI:
     CARD_MARGIN = 12
     CARD_SIZE = 110
     HEADER_HEIGHT = 90
+    MIN_HEADER_WIDTH = 550
     FPS = 60
     REVEAL_DELAY_MS = 900
 
@@ -52,6 +53,7 @@ class MemoryUI:
         self.font: Optional[pygame.font.Font] = None
         self.card_font: Optional[pygame.font.Font] = None
         self.lock_until: Optional[int] = None
+        self.background_image: Optional[pygame.Surface] = None
 
     # Público -----------------------------------------------------------------
     def run(self, rows: int = 4, cols: int = 4) -> None:
@@ -62,6 +64,18 @@ class MemoryUI:
 
         pygame.init()
         self.clock = pygame.time.Clock()
+
+        try:
+            # 1. Cargar la imagen (ajusta el nombre del archivo si es necesario)
+            loaded_image = pygame.image.load("misc/fondo.png") 
+            
+            # 2. Escalar la imagen al tamaño total de la ventana
+            width, height = self._compute_window_size(rows, cols)
+            self.background_image = pygame.transform.scale(loaded_image, (width, height))
+            
+        except pygame.error as e:
+            print(f"Advertencia: No se pudo cargar la imagen de fondo 'fondo.jpg'. Se usará un color plano. Error: {e}")
+
         self.font = pygame.font.Font(None, 34)
         self.card_font = pygame.font.Font(None, 72)
 
@@ -129,7 +143,12 @@ class MemoryUI:
         if self.screen is None:
             return
 
-        self.screen.fill(self.BG_COLOR)
+        if self.background_image:
+            # Dibuja la imagen en la posición (0, 0)
+            self.screen.blit(self.background_image, (0, 0))
+        else:
+            # Si la imagen no se cargo, usa el color plano BG_COLOR
+            self.screen.fill(self.BG_COLOR)
         self._draw_header()
         self._draw_cards()
         pygame.display.flip()
@@ -179,7 +198,9 @@ class MemoryUI:
 
     # Helpers -----------------------------------------------------------------
     def _compute_window_size(self, rows: int, cols: int) -> Tuple[int, int]:
-        width = cols * self.CARD_SIZE + (cols + 1) * self.CARD_MARGIN
+        card_width = cols * self.CARD_SIZE + (cols + 1) * self.CARD_MARGIN
+        width = max(card_width, self.MIN_HEADER_WIDTH)
+        #width = cols * self.CARD_SIZE + (cols + 1) * self.CARD_MARGIN
         height = (
             rows * self.CARD_SIZE
             + (rows + 1) * self.CARD_MARGIN

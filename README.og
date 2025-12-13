@@ -1,0 +1,33 @@
+Logic.py
+1. cargar_nivel:
+
+Esta función se encarga de leer el archivo de nivel indicado en self.level_path y transformarlo en una cuadrícula válida para el juego.
+
+Función:
+
+Comprueba que la ruta proporcionada corresponde a un archivo existente.
+Lee el contenido completo del fichero utilizando read().
+Divide el texto en líneas con splitlines(), eliminando líneas vacías.
+Valida que todas las filas tengan la misma longitud; si no, lanza un error.
+Asigna el resultado a self.layout y lo devuelve.
+Resultado: El nivel queda representado internamente como una lista de cadenas, donde cada carácter define un tipo de bloque o una celda vacía.
+
+2. preparar_entidades:
+
+Esta función inicializa los elementos principales del juego antes de comenzar la partida.
+
+Función:
+
+Crea la paleta usando self.crear_rect() con las dimensiones definidas en la configuración.
+Centra la paleta en la parte inferior de la pantalla usando midbottom.
+Reinicia las variables de estado del juego: self.score, self.livesy `yo mismoself.end_message.
+Llama a self.reiniciar_bola() para colocar la bola justo encima de la paleta con su velocidad inicial.
+Resultado: El juego queda en estado inicial: paleta centrada, bola preparada para salir y contador de puntos y vidas reiniciado.
+
+
+
+-- Mejoras
+
+Musica 
+
+Letras no se cortan
