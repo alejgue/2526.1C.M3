@@ -45,14 +45,29 @@ def create_game(rows: int, cols: int) -> GameState:
 
 
 def reveal_card(game: GameState, row: int, col: int) -> bool:
-    """Intenta descubrir la carta ubicada en ``row``, ``col``.
+    """Intenta revelar la carta en (row, col). Devuelve True si se revela."""
+    revelada = True
 
-    Debe devolver ``True`` si el estado ha cambiado (es decir, la carta estaba
-    oculta y ahora está visible) y ``False`` en cualquier otro caso. No permitas
-    dar la vuelta a más de dos cartas simultáneamente.
-    """
+    # Validar coordenadas
+    if row < 0 or col < 0 or row >= game["rows"] or col >= game["cols"]:
+        revelada = False
+    else:
+        card = game["board"][row][col]
+        pending = game["pending"]
 
-    raise NotImplementedError
+        # No permitir más de dos cartas visibles
+        if len(pending) >= 2:
+            revelada = False
+        # Evitar revelar la misma carta dos veces
+        elif card["state"] != STATE_HIDDEN:
+            revelada = False
+
+        # Si todo es correcto, revelar
+        if revelada:
+            card["state"] = STATE_VISIBLE
+            pending.append((row, col))
+
+    return revelada
 
 
 def resolve_pending(game: GameState) -> Tuple[bool, bool]:
