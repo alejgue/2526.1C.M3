@@ -164,16 +164,16 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
     # Comprobar si las cartas coinciden
     if card1['symbol'] == card2['symbol']:
         # Las cartas coinciden, se marcan como encontradas
-        card1['state'] = 'STATE_FOUND'
-        card2['state'] = 'STATE_FOUND'
+        card1['state'] = STATE_FOUND
+        card2['state'] = STATE_FOUND
         
         # Incrementar el contador de matches
         game['matches'] += 1
         pareja_encontrada = True
     else:
         # Las cartas no coinciden, se ocultan de nuevo
-        card1['state'] = 'STATE_HIDDEN'
-        card2['state'] = 'STATE_HIDDEN'
+        card1['state'] = STATE_HIDDEN
+        card2['state'] = STATE_HIDDEN
     
     # Incrementar el contador de movimientos
     game['moves'] += 1
