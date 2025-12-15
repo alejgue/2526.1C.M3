@@ -1,0 +1,107 @@
+# Logic.py - Funciones del Juego de Memoria
+
+## 1. build_symbol_pool
+
+Esta función crea la lista de símbolos necesaria para rellenar todo el tablero de memoria.
+
+**Función:**
+- Calcula el número total de cartas (filas × columnas) y valida límites (máx. 8 filas, 10 columnas, 60 cartas).
+- Calcula el número de parejas necesarias (total_cartas ÷ 2).
+- Genera símbolos únicos desde letras, dígitos y caracteres especiales.
+- Duplica cada símbolo para formar parejas.
+- Baraja aleatoriamente la lista resultante.
+
+**Resultado:** Una lista barajada con símbolos duplicados lista para asignar a las cartas del tablero.
+
+## 2. create_game
+
+Esta función genera el diccionario con el estado inicial del juego.
+
+**Función:**
+
+- Inicializa el mixer de pygame para reproducir música de fondo.
+- Carga y reproduce "misc/m1.mp3" en bucle con volumen al 30%.
+- Obtiene la lista de símbolos barajados mediante build_symbol_pool.
+- Construye el tablero como lista de listas con cartas (cada carta contiene símbolo y estado).
+- Calcula el número total de parejas disponibles.
+
+**Resultado:** Retorna un diccionario con el estado inicial: tablero, lista de pendientes vacía, movimientos en 0, matches en 0, dimensiones y total de parejas.
+
+## 3. reveal_card
+
+Esta función intenta revelar una carta en las coordenadas especificadas.
+
+**Función:**
+
+- Valida que las coordenadas estén dentro del rango del tablero.
+- Evita revelar más de dos cartas simultáneamente.
+- Impide revelar cartas ya reveladas o encontradas.
+- Cambia el estado de la carta a VISIBLE y la añade a la lista de pendientes.
+
+**Resultado:** Devuelve True si la carta se revela exitosamente, False si no es posible.
+
+## 4. resolve_pending
+
+Esta función resuelve el turno cuando hay dos cartas pendientes.
+
+**Función:**
+
+- Accede a las dos cartas pendientes usando sus coordenadas.
+- Compara los símbolos de ambas cartas.
+- Si coinciden: marca ambas como FOUND e incrementa matches.
+- Si no coinciden: devuelve ambas al estado HIDDEN.
+- Incrementa el contador de movimientos en ambos casos.
+- Limpia la lista de pendientes.
+
+**Resultado:** Devuelve una tupla (True, pareja_encontrada) indicando si la ronda se resolvió y si hubo coincidencia.
+
+## 5. has_won
+
+Esta función indica si se han encontrado todas las parejas.
+
+**Función:**
+
+- Compara el número de matches con el total de parejas disponibles.
+
+**Resultado:** Devuelve True si matches == total_pairs, False en caso contrario.
+
+
+# Mejoras y Funciones Extras
+
+## Musica
+
+Añade musica al juego.
+
+**Función:**
+
+- Mediante pygame.mixer en la función "create_game" se reproduce musica en bucle al jugar.
+
+## Fondo de pantalla
+
+Añade un fondo de pantalla al juego.
+
+**Función:**
+
+- Modificando memory_engine.py, se ha conseguido añadir un fondo de pantalla cuando se juega.
+
+**Modificaciones:**
+
+- En el metodo "__init__()" se ha añadido la variable: "self.background_image: Optional[pygame.Surface] = None"
+  para almacenar la imagen cargada.
+- En el metodo "run()" se ha hecho uso de pygame.image.load para cargar la imagen, y se ha añadido 
+  codigo para escalar la imagen al tamaño total de la ventana.
+- En el metodo "_draw_scene" se ha añadido codigo para dibujar la imagen en la posicion (0, 0) 
+  y para que en caso de que no se carge la imagen, usa BG_COLOR como el comportamiento general.
+
+## Letras no se cortan
+
+Arregla que se corte el texto cuando el numero de filas o columnas es pequeño.
+
+**Función:**
+
+- Ajuste de las dimensiones de la pantalla para que no se corten las letras cuando el numero de filas o columnas es pequeño .
+
+**Modificaciones:**
+
+- En la seccion de constantes de la clase MemoryUI he añadido la constante "MIN_HEADER_WIDTH".
+- En el metodo "_compute_window_size()" he añadido una linea de codigo que asegura un ancho mínimo para que el texto quepa.
