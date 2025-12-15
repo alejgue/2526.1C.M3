@@ -1,28 +1,70 @@
-Logic.py
-1. cargar_nivel:
+# Logic.py - Funciones del Juego de Memoria
 
-Esta función se encarga de leer el archivo de nivel indicado en self.level_path y transformarlo en una cuadrícula válida para el juego.
+## 1. build_symbol_pool
 
-Función:
+Esta función crea la lista de símbolos necesaria para rellenar todo el tablero de memoria.
 
-Comprueba que la ruta proporcionada corresponde a un archivo existente.
-Lee el contenido completo del fichero utilizando read().
-Divide el texto en líneas con splitlines(), eliminando líneas vacías.
-Valida que todas las filas tengan la misma longitud; si no, lanza un error.
-Asigna el resultado a self.layout y lo devuelve.
-Resultado: El nivel queda representado internamente como una lista de cadenas, donde cada carácter define un tipo de bloque o una celda vacía.
+**Función:**
 
-2. preparar_entidades:
+- Calcula el número total de cartas (filas × columnas) y valida límites (máx. 8 filas, 10 columnas, 60 cartas).
+- Calcula el número de parejas necesarias (total_cartas ÷ 2).
+- Genera símbolos únicos desde letras, dígitos y caracteres especiales.
+- Duplica cada símbolo para formar parejas.
+- Baraja aleatoriamente la lista resultante.
 
-Esta función inicializa los elementos principales del juego antes de comenzar la partida.
+**Resultado:** Una lista barajada con símbolos duplicados lista para asignar a las cartas del tablero.
 
-Función:
+## 2. create_game
 
-Crea la paleta usando self.crear_rect() con las dimensiones definidas en la configuración.
-Centra la paleta en la parte inferior de la pantalla usando midbottom.
-Reinicia las variables de estado del juego: self.score, self.livesy `yo mismoself.end_message.
-Llama a self.reiniciar_bola() para colocar la bola justo encima de la paleta con su velocidad inicial.
-Resultado: El juego queda en estado inicial: paleta centrada, bola preparada para salir y contador de puntos y vidas reiniciado.
+Esta función genera el diccionario con el estado inicial del juego.
+
+**Función:**
+
+- Inicializa el mixer de pygame para reproducir música de fondo.
+- Carga y reproduce "misc/m1.mp3" en bucle con volumen al 30%.
+- Obtiene la lista de símbolos barajados mediante build_symbol_pool.
+- Construye el tablero como lista de listas con cartas (cada carta contiene símbolo y estado).
+- Calcula el número total de parejas disponibles.
+
+**Resultado:** Retorna un diccionario con el estado inicial: tablero, lista de pendientes vacía, movimientos en 0, matches en 0, dimensiones y total de parejas.
+
+## 3. reveal_card
+
+Esta función intenta revelar una carta en las coordenadas especificadas.
+
+**Función:**
+
+- Valida que las coordenadas estén dentro del rango del tablero.
+- Evita revelar más de dos cartas simultáneamente.
+- Impide revelar cartas ya reveladas o encontradas.
+- Cambia el estado de la carta a VISIBLE y la añade a la lista de pendientes.
+
+**Resultado:** Devuelve True si la carta se revela exitosamente, False si no es posible.
+
+## 4. resolve_pending
+
+Esta función resuelve el turno cuando hay dos cartas pendientes.
+
+**Función:**
+
+- Accede a las dos cartas pendientes usando sus coordenadas.
+- Compara los símbolos de ambas cartas.
+- Si coinciden: marca ambas como FOUND e incrementa matches.
+- Si no coinciden: devuelve ambas al estado HIDDEN.
+- Incrementa el contador de movimientos en ambos casos.
+- Limpia la lista de pendientes.
+
+**Resultado:** Devuelve una tupla (True, pareja_encontrada) indicando si la ronda se resolvió y si hubo coincidencia.
+
+## 5. has_won
+
+Esta función indica si se han encontrado todas las parejas.
+
+**Función:**
+
+- Compara el número de matches con el total de parejas disponibles.
+
+**Resultado:** Devuelve True si matches == total_pairs, False en caso contrario.
 
 
 
