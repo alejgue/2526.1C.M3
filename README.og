@@ -1,74 +1,71 @@
-# Logic.py - Funciones del Juego de Memoria
+## Requisitos previos
+1. Python 3.10 o superior.
+2. Instalar `pygame` si aún no lo tienes:
+   ```bash
+   python -m pip install pygame
+   ```
+3. Ejecuta el motor con:
+   ```bash
+   python game.py --rows 4 --cols 4
+   ```
+   Ajusta `--rows` y `--cols` para probar diferentes tamaños (recuerda que el
+   número total de casillas debe ser par).
 
-## 1. build_symbol_pool
+## Contexto
+El alumnado debe ocuparse exclusivamente de la parte "clásica" del juego:
+preparar los datos iniciales, gestionar qué cartas pueden revelarse y decidir si
+hay pareja o no. La interfaz incluida (`memory_engine.py`) representa el tablero,
+lanza el bucle principal y llama a funciones del módulo `logic`. De este modo se
+mantiene una plantilla procedural sin clases ni decoradores.
 
-Esta función crea la lista de símbolos necesaria para rellenar todo el tablero de memoria.
-
-**Función:**
-- Calcula el número total de cartas (filas × columnas) y valida límites (máx. 8 filas, 10 columnas, 60 cartas).
-- Calcula el número de parejas necesarias (total_cartas ÷ 2).
-- Genera símbolos únicos desde letras, dígitos y caracteres especiales.
-- Duplica cada símbolo para formar parejas.
-- Baraja aleatoriamente la lista resultante.
-
-**Resultado:** Una lista barajada con símbolos duplicados lista para asignar a las cartas del tablero.
-
-## 2. create_game
-
-Esta función genera el diccionario con el estado inicial del juego.
-
-**Función:**
-
-- Inicializa el mixer de pygame para reproducir música de fondo.
-- Carga y reproduce "misc/m1.mp3" en bucle con volumen al 30%.
-- Obtiene la lista de símbolos barajados mediante build_symbol_pool.
-- Construye el tablero como lista de listas con cartas (cada carta contiene símbolo y estado).
-- Calcula el número total de parejas disponibles.
-
-**Resultado:** Retorna un diccionario con el estado inicial: tablero, lista de pendientes vacía, movimientos en 0, matches en 0, dimensiones y total de parejas.
-
-## 3. reveal_card
-
-Esta función intenta revelar una carta en las coordenadas especificadas.
-
-**Función:**
-
-- Valida que las coordenadas estén dentro del rango del tablero.
-- Evita revelar más de dos cartas simultáneamente.
-- Impide revelar cartas ya reveladas o encontradas.
-- Cambia el estado de la carta a VISIBLE y la añade a la lista de pendientes.
-
-**Resultado:** Devuelve True si la carta se revela exitosamente, False si no es posible.
-
-## 4. resolve_pending
-
-Esta función resuelve el turno cuando hay dos cartas pendientes.
-
-**Función:**
-
-- Accede a las dos cartas pendientes usando sus coordenadas.
-- Compara los símbolos de ambas cartas.
-- Si coinciden: marca ambas como FOUND e incrementa matches.
-- Si no coinciden: devuelve ambas al estado HIDDEN.
-- Incrementa el contador de movimientos en ambos casos.
-- Limpia la lista de pendientes.
-
-**Resultado:** Devuelve una tupla (True, pareja_encontrada) indicando si la ronda se resolvió y si hubo coincidencia.
-
-## 5. has_won
-
-Esta función indica si se han encontrado todas las parejas.
-
-**Función:**
-
-- Compara el número de matches con el total de parejas disponibles.
-
-**Resultado:** Devuelve True si matches == total_pairs, False en caso contrario.
+## Ficheros en esta carpeta
+- `memory_engine.py`: motor gráfico listo para usar. **No se modifica.**
+- `game.py`: punto de entrada que conecta el motor con la lógica del alumno.
+- `logic.py`: plantilla con todas las funciones `TODO` que debes completar.
 
 
+## Ejercicios
+Completa las funciones que aparecen en `logic.py` respetando los tipos y los
+nombres de las claves descritas. Se recomienda resolverlas en este orden:
 
--- Mejoras
+1. **`build_symbol_pool`** *(1 punto)*: construye la lista plana con todos los
+   símbolos necesarios para rellenar el tablero. Cada símbolo debe aparecer dos
+   veces. Puedes empezar con letras y números, y barajar al final con
+   `random.shuffle`.
+2. **`create_game`** *(2 puntos)*: a partir del resultado del paso anterior,
+   construye el tablero (lista de listas de cartas) y devuelve un diccionario con
+   los contadores iniciales: ``pending``, ``moves``, ``matches``, ``total_pairs``
+   y las dimensiones.
+3. **`reveal_card`** *(2 puntos)*: valida las coordenadas recibidas, evita
+   revelar la misma carta dos veces y añade las posiciones a ``pending``. Solo
+   puede haber dos cartas visibles a la vez.
+4. **`resolve_pending`** *(3 puntos)*: cuando haya dos cartas en ``pending``,
+   comprueba si coinciden. Si hay pareja marca el estado como `found` y suma un
+   punto al contador de ``matches``; en caso contrario vuelve a ocultarlas. En
+   ambos casos incrementa ``moves`` y vacía ``pending``.
+5. **`has_won`** *(1 punto)*: devuelve `True` cuando las parejas encontradas
+   alcancen a `total_pairs`.
 
-Musica 
+Cada carta del tablero es un diccionario con las claves `symbol` y `state`. Los
+únicos valores permitidos en `state` son las constantes `STATE_HIDDEN`,
+`STATE_VISIBLE` y `STATE_FOUND` (reutiliza las que vienen en la plantilla para
+mantener la comunicación con el motor).
 
-Letras no se cortan
+## Consejos
+- Mantén la lógica pura: evita variables globales fuera de las estructuras
+  pedidas y céntrate en manipular la información del tablero.
+- Usa bucles `for` y listas auxiliares para recorrer y modificar el tablero;
+  intenta no recurrir a comprensiones complejas para que el código sea más
+  legible.
+- Valida siempre las coordenadas recibidas; si están fuera del tablero no deben
+  producir errores.
+- Experimenta con distintos tamaños (`--rows 2 --cols 6`, `--rows 6 --cols 6`,
+  etc.) para verificar que tus funciones escalan bien.
+- Al final del desarrollo ejecuta varias partidas completas para asegurarte de
+  que `has_won` detecta correctamente el final de la partida y que los
+  contadores de movimientos y parejas son coherentes.
+
+## Rubrica
+ - Se valorará el uso de código bien escrito
+ - Se valorará el uso de pylint y de ruff.
+ - Se valorará el uso correcto de las recomendaciones vistas en teoría

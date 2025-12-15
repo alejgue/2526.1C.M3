@@ -22,9 +22,6 @@ GameState = Dict[str, object]
 
 def build_symbol_pool(rows: int, cols: int) -> List[str]:
     """Crea la lista de símbolos necesaria para rellenar todo el tablero.
-
-    Sugerencia: parte de un listado básico de caracteres y duplícalo tantas
-    veces como parejas necesites. Después baraja el resultado.
     """
 
     total_cartas = rows*cols
@@ -56,9 +53,9 @@ def build_symbol_pool(rows: int, cols: int) -> List[str]:
 
 
 def create_game(rows: int, cols: int) -> GameState:
-    """Genera el diccionario con el estado inicial del juego.
+    """Inicia la musica y genera el diccionario con el estado inicial del juego.
 
-    El estado debe incluir:
+    El estado incluye:
     - ``board``: lista de listas con cartas (cada carta es un dict con
       ``symbol`` y ``state``).
     - ``pending``: lista de posiciones descubiertas en el turno actual.
@@ -68,13 +65,11 @@ def create_game(rows: int, cols: int) -> GameState:
     - ``rows`` / ``cols``: dimensiones del tablero.
     """
     
-                
     try:
-        # Asegúrate de que el módulo mixer esté disponible/inicializado
+        # Añade musica al juego
         if not pygame.mixer.get_init():
             pygame.mixer.init()
             
-        # Carga y reproduce la música de fondo
         pygame.mixer.music.load("misc/m1.mp3") 
         pygame.mixer.music.play(loops=-1)
         pygame.mixer.music.set_volume(0.3)
@@ -82,7 +77,7 @@ def create_game(rows: int, cols: int) -> GameState:
     except pygame.error as e:
         print(f"Advertencia: No se pudo iniciar la música de fondo. Asegúrate de tener el archivo de musica. Error: {e}")
 
-    # Obtiene la lista de símbolos barajados (depende de tu parte Alex)
+    # Obtiene la lista de símbolos barajados
     simbolos = build_symbol_pool(rows, cols)
     
     # Construir el tablero (lista de listas de cartas)
@@ -100,11 +95,10 @@ def create_game(rows: int, cols: int) -> GameState:
             indice_simbolo += 1
         tablero.append(cartas_fila)
     
-    # Se calcula el numero total de parejas
     casillas_totales = rows * cols      
     parejas_totales = casillas_totales // 2
     
-    #devuelve el estado inicial del juego.
+    # Devuelve el estado inicial del juego.
     estado_juego = {
         "board": tablero,
         "pending": [],
@@ -119,6 +113,7 @@ def create_game(rows: int, cols: int) -> GameState:
 
 def reveal_card(game: GameState, row: int, col: int) -> bool:
     """Intenta revelar la carta en (row, col). Devuelve True si se revela."""
+
     revelada = True
 
     # Validar coordenadas
@@ -146,8 +141,8 @@ def reveal_card(game: GameState, row: int, col: int) -> bool:
 def resolve_pending(game: GameState) -> Tuple[bool, bool]:
     """Resuelve el turno si hay dos cartas pendientes.
 
-    Devuelve una tupla ``(resuelto, pareja_encontrada)``. Este método debe
-    ocultar las cartas si son diferentes o marcarlas como ``found`` cuando
+    Devuelve una tupla ``(resuelto, pareja_encontrada)``. Este método oculta 
+    las cartas si son diferentes o marcarlas como ``found`` cuando
     coincidan. Además, incrementa ``moves`` y ``matches`` según corresponda.
     """
 
@@ -158,16 +153,13 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
     card1 = game['board'][card1_coords[0]][card1_coords[1]]
     card2 = game['board'][card2_coords[0]][card2_coords[1]]
     
-    # Inicializar la variable para saber si hay pareja
     pareja_encontrada = False
     
-    # Comprobar si las cartas coinciden
     if card1['symbol'] == card2['symbol']:
         # Las cartas coinciden, se marcan como encontradas
         card1['state'] = STATE_FOUND
         card2['state'] = STATE_FOUND
         
-        # Incrementar el contador de matches
         game['matches'] += 1
         pareja_encontrada = True
     else:
@@ -175,16 +167,15 @@ def resolve_pending(game: GameState) -> Tuple[bool, bool]:
         card1['state'] = STATE_HIDDEN
         card2['state'] = STATE_HIDDEN
     
-    # Incrementar el contador de movimientos
     game['moves'] += 1
     
     # Limpiar la lista de pendientes
     game['pending'] = []
     
-    # Devolver la tupla: (resuelto, pareja_encontrada)
     return True, pareja_encontrada
 
 
 def has_won(game: GameState) -> bool:
     """Indica si se han encontrado todas las parejas."""
+    
     return game["matches"] == game["total_pairs"]
